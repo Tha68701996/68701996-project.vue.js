@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-4">
-    <h2 class="mb-3">รายชื่อพนักงาน</h2>
+    <h2 class="mb-3">รายชื่อนักศึกษา</h2>
     
     <div class="mb-3">
       <button class="btn btn-primary" @click="openAddModal">
@@ -15,23 +15,23 @@
           <th>ชื่อ</th>
           <th>นามสกุล</th>
           <th>เบอร์โทร</th>
-          <th>ชื่อผู้ใช้</th>
+          <th>อีเมล</th>
           <th>แก้ไข/ลบ</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="employee in employees" :key="employee.emp_id">
-          <td>{{ employee.emp_id }}</td>
-          <td>{{ employee.firstName }}</td>
-          <td>{{ employee.lastName }}</td>
-          <td>{{ employee.phone }}</td>
-          <td>{{ employee.username }}</td>
+        <tr v-for="student in students" :key="student.student_id">
+          <td>{{ student.student_id }}</td>
+          <td>{{ student.first_name }}</td>
+          <td>{{ student.last_name }}</td>
+          <td>{{ student.phone }}</td>
+          <td>{{ student.email }}</td>
           <td>
-            <button class="btn btn-warning btn-sm" @click="openEditModal(employee)">
+            <button class="btn btn-warning btn-sm" @click="openEditModal(student)">
               แก้ไข
             </button>
             |
-            <button class="btn btn-danger btn-sm" @click="deleteEmployee(employee.emp_id)">
+            <button class="btn btn-danger btn-sm" @click="deletestudent(student.student_id)">
               ลบ
             </button>
           </td>
@@ -42,40 +42,33 @@
     <div v-if="loading" class="text-center"><p>กำลังโหลดข้อมูล...</p></div>
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
-    <!-- ✅ Modal ใช้ทั้งเพิ่ม/แก้ไข -->
     <div class="modal fade" id="editModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ isEditMode ? "แก้ไขข้อมูลพนักงาน" : "เพิ่มพนักงานใหม่" }}</h5>
+            <h5 class="modal-title">{{ isEditMode ? "แก้ไขข้อมูลนักศึกษา" : "เพิ่มนักศึกษาใหม่" }}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <form @submit.prevent="saveEmployee">
+            <form @submit.prevent="savestudent">
               <div class="mb-3">
                 <label class="form-label">ชื่อ</label>
-                <input v-model="editEmployee.firstName" type="text" class="form-control" required>
+                <input v-model="editstudent.first_name" type="text" class="form-control" required>
               </div>
               <div class="mb-3">
                 <label class="form-label">นามสกุล</label>
-                <input v-model="editEmployee.lastName" type="text" class="form-control" required>
+                <input v-model="editstudent.last_name" type="text" class="form-control" required>
               </div>
               <div class="mb-3">
                 <label class="form-label">เบอร์โทร</label>
-                <input v-model="editEmployee.phone" type="text" class="form-control" required>
+                <input v-model="editstudent.phone" type="text" class="form-control" required>
               </div>
               <div class="mb-3">
-                <label class="form-label">ชื่อผู้ใช้</label>
-                <input v-model="editEmployee.username" type="text" class="form-control" required>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">รหัสผ่าน</label>
-                <input v-model="editEmployee.password" type="password" class="form-control"
-                       :required="!isEditMode"
-                       placeholder="กรอกเฉพาะเมื่อเพิ่มใหม่หรือเปลี่ยนรหัสผ่าน">
+                <label class="form-label">อีเมล</label>
+                <input v-model="editstudent.email" type="text" class="form-control" required>
               </div>
               <button type="submit" class="btn btn-success">
-                {{ isEditMode ? "บันทึกการแก้ไข" : "เพิ่มพนักงาน" }}
+                {{ isEditMode ? "บันทึกการแก้ไข" : "เพิ่มนักศึกษา" }}
               </button>
             </form>
           </div>
@@ -90,22 +83,22 @@
 import { ref, onMounted } from "vue";
 
 export default {
-  name: "EmployeeList",
+  name: "studentList",
   setup() {
-    const employees = ref([]);
+    const students = ref([]);
     const loading = ref(true);
     const error = ref(null);
-    const editEmployee = ref({});
+    const editstudent = ref({});
     const isEditMode = ref(false);
     let editModal = null;
 
-    const fetchEmployees = async () => {
+    const fetchStudent = async () => {
       try {
-        const response = await fetch("http://localhost/week5_68701996_ict12367/php_api/employee_crud.php");
+        const response = await fetch("http://localhost/68701996_midexam/php_api/student_crud.php");
         const result = await response.json();
 
         if (result.success) {
-          employees.value = result.data;
+          students.value = result.data;
         } else {
           error.value = result.message;
         }
@@ -117,48 +110,45 @@ export default {
     };
 
     onMounted(() => {
-      fetchEmployees();
+      fetchStudent();
       const modalEl = document.getElementById("editModal");
       editModal = new window.bootstrap.Modal(modalEl);
     });
 
-    // ✅ เปิด Modal เพิ่มพนักงานใหม่
     const openAddModal = () => {
       isEditMode.value = false;
-      editEmployee.value = {
-        firstName: "",
-        lastName: "",
+      editstudent.value = {
+        first_name: "",
+        last_name: "",
         phone: "",
-        username: "",
-        password: ""
+        email: ""
       };
       editModal.show();
     };
 
-    // ✅ เปิด Modal แก้ไขพนักงาน
-    const openEditModal = (employee) => {
+    const openEditModal = (student) => {
       isEditMode.value = true;
-      editEmployee.value = { ...employee, password: "" };
+      originalstudentId.value = student.student_id;
+      editstudent.value = { ...student };
       editModal.show();
-    };
+    }
 
-    // ✅ ใช้ฟังก์ชันเดียวสำหรับทั้งเพิ่ม/แก้ไข
-    const saveEmployee = async () => {
-      const url = "http://localhost/week5_68701996_ict12367/php_api/employee_crud.php";
+    const savestudent = async () => {
+      const url = "http://localhost/68701996_midexam/php_api/student_crud.php";
       const method = isEditMode.value ? "PUT" : "POST";
 
       try {
         const response = await fetch(url, {
           method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editEmployee.value)
+          body: JSON.stringify(editstudent.value)
         });
 
         const result = await response.json();
 
         if (result.success) {
           alert(result.message);
-          fetchEmployees();
+          fetchStudent();
           editModal.hide();
         } else {
           alert(result.message);
@@ -168,18 +158,17 @@ export default {
       }
     };
 
-    // ✅ ลบพนักงาน
-    const deleteEmployee = async (id) => {
+    const deletestudent = async (id) => {
       if (!confirm("คุณต้องการลบข้อมูลนี้ใช่หรือไม่?")) return;
       try {
-        const response = await fetch("http://localhost/week5_68701996_ict12367/php_api/employee_crud.php", {
+        const response = await fetch("http://localhost/68701996_midexam/php_api/student_crud.php", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ employee_id: id })
+          body: JSON.stringify({ student_id: id })
         });
         const result = await response.json();
         if (result.success) {
-          employees.value = employees.value.filter(e => e.employee_id !== id);
+          students.value = students.value.filter(c => c.student_id !== id);
           alert(result.message);
         } else {
           alert(result.message);
@@ -190,15 +179,15 @@ export default {
     };
 
     return {
-      employees,
+      students,
       loading,
       error,
-      editEmployee,
+      editstudent,
       isEditMode,
       openAddModal,
       openEditModal,
-      saveEmployee,
-      deleteEmployee
+      savestudent,
+      deletestudent
     };
   }
 };
