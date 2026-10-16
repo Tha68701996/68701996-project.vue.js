@@ -90,6 +90,7 @@ export default {
     const error = ref(null);
     const editstudent = ref({});
     const isEditMode = ref(false);
+    const originalstudentId = ref({})
     let editModal = null;
 
     const fetchStudent = async () => {
@@ -187,7 +188,8 @@ export default {
       openAddModal,
       openEditModal,
       savestudent,
-      deletestudent
+      deletestudent,
+      originalstudentId
     };
   }
 };
